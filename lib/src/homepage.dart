@@ -8,7 +8,9 @@ class HomePage extends StatelessWidget {
   final SettingsController settingsController;
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     final TextEditingController jsonController = TextEditingController();
+    final TextEditingController dartController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -29,28 +31,101 @@ class HomePage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const Text("Paste Your json Here"),
-          Expanded(
-            child: TextFormField(
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                controller: jsonController,
-                decoration: const InputDecoration(
-                    counterText: '',
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Paste Your json Here"),
                     ),
-                    hintText: "Paste Your Json Here",
-                    border: InputBorder.none,
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
+                    Container(
+                      margin: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(3.0),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blueAccent)),
+                      width: size.width / 2,
+                      height: size.height / 1.5,
+                      child: TextFormField(
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(color: Colors.white),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          controller: jsonController,
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          )),
                     ),
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none)),
-          )
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("Convert To Json")),
+                        ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("Add New Json")),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("Get You Dart Class Here"),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(3.0),
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.blueAccent)),
+                      width: size.width / 2,
+                      height: size.height / 1.5,
+                      child: TextFormField(
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(color: Colors.white),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          controller: dartController,
+                          decoration: const InputDecoration(
+                            counterText: '',
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          )),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () {}, child: const Text("Copy Code")),
+                        ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("Download File")),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
