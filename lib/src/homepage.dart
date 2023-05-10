@@ -1,5 +1,8 @@
+import 'package:dart_to_jsongenerator/src/services.dart';
 import 'package:dart_to_jsongenerator/src/settings/settings_view.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'settings/settings_controller.dart';
 
@@ -11,6 +14,7 @@ class HomePage extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     final TextEditingController jsonController = TextEditingController();
     final TextEditingController dartController = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -48,31 +52,76 @@ class HomePage extends StatelessWidget {
                           border: Border.all(color: Colors.blueAccent)),
                       width: size.width / 2,
                       height: size.height / 1.5,
-                      child: TextFormField(
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(color: Colors.white),
-                          maxLines: null,
-                          keyboardType: TextInputType.multiline,
-                          controller: jsonController,
-                          decoration: const InputDecoration(
-                            counterText: '',
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                          )),
+                      child: Column(
+                        children: [
+                          TextField(
+                              maxLines: 1,
+                              controller: titleController,
+                              maxLength: 100,
+                              decoration: const InputDecoration(
+                                hintText: "Enter Your Class Name",
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              )),
+                          TextFormField(
+                              textAlign: TextAlign.start,
+                              maxLines: null,
+                              keyboardType: TextInputType.multiline,
+                              controller: jsonController,
+                              decoration: const InputDecoration(
+                                hintText: "Enter Your Json Body",
+                                counterText: '',
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              )),
+                        ],
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              if (jsonController.text.isNotEmpty) {
+                                var res = JsonHelper.convertJson(
+                                    "test", jsonController.text);
+                                if (res != null) {
+                                  dartController.text = res;
+                                  Logger().wtf(dartController.text);
+                                }
+                              } else {
+                                Alert(
+                                  context: context,
+                                  type: AlertType.error,
+                                  title: "Error",
+                                  desc: "please Fill All the Feild",
+                                  buttons: [
+                                    DialogButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      width: size.width / 10,
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      ),
+                                    )
+                                  ],
+                                ).show();
+                              }
+                            },
                             child: const Text("Convert To Json")),
                         ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              jsonController.clear();
+                              dartController.clear();
+                            },
                             child: const Text("Add New Json")),
                       ],
                     )
@@ -96,7 +145,7 @@ class HomePage extends StatelessWidget {
                       height: size.height / 1.5,
                       child: TextFormField(
                           textAlign: TextAlign.start,
-                          style: const TextStyle(color: Colors.white),
+                          readOnly: true,
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
                           controller: dartController,
