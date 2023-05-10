@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:dart_to_jsongenerator/src/services.dart';
 import 'package:dart_to_jsongenerator/src/settings/settings_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
@@ -15,6 +18,19 @@ class HomePage extends StatelessWidget {
     final TextEditingController jsonController = TextEditingController();
     final TextEditingController dartController = TextEditingController();
     final TextEditingController titleController = TextEditingController();
+    bool isValidJson(jsonString) {
+      var decodeSucceeded = false;
+      try {
+        var decodedJSON = json.decode(jsonString) as Map<String, dynamic>;
+        decodeSucceeded = true;
+      } on FormatException {
+        decodeSucceeded = false;
+        print('The provided string is not valid JSON');
+      }
+      print('Decoding succeeded: $decodeSucceeded');
+      return decodeSucceeded;
+    }
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -65,22 +81,24 @@ class HomePage extends StatelessWidget {
                                   vertical: 12,
                                 ),
                               )),
-                          TextFormField(
-                              textAlign: TextAlign.start,
-                              maxLines: null,
-                              keyboardType: TextInputType.multiline,
-                              controller: jsonController,
-                              decoration: const InputDecoration(
-                                hintText: "Enter Your Json Body",
-                                counterText: '',
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                              )),
+                          Expanded(
+                            child: TextFormField(
+                                textAlign: TextAlign.start,
+                                maxLines: null,
+                                keyboardType: TextInputType.multiline,
+                                controller: jsonController,
+                                decoration: const InputDecoration(
+                                  hintText: "Enter Your Json Body",
+                                  counterText: '',
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                )),
+                          ),
                         ],
                       ),
                     ),
@@ -89,12 +107,55 @@ class HomePage extends StatelessWidget {
                       children: [
                         ElevatedButton(
                             onPressed: () {
-                              if (jsonController.text.isNotEmpty) {
-                                var res = JsonHelper.convertJson(
-                                    "test", jsonController.text);
-                                if (res != null) {
-                                  dartController.text = res;
-                                  Logger().wtf(dartController.text);
+                              if (jsonController.text.isNotEmpty &&
+                                  titleController.text.isNotEmpty) {
+                                if (isValidJson(jsonController.text)) {
+                                  var res = JsonHelper.convertJson(
+                                      titleController.text,
+                                      jsonController.text);
+                                  if (res != null) {
+                                    dartController.text = res;
+                                    Logger().wtf(dartController.text);
+                                  } else {
+                                    Alert(
+                                      context: context,
+                                      type: AlertType.error,
+                                      title: "Error",
+                                      desc: "Something Went Wrong",
+                                      buttons: [
+                                        DialogButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          width: size.width / 10,
+                                          child: const Text(
+                                            "OK",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20),
+                                          ),
+                                        )
+                                      ],
+                                    ).show();
+                                  }
+                                } else {
+                                  Alert(
+                                    context: context,
+                                    type: AlertType.error,
+                                    title: "Error",
+                                    desc: "Please Format Your Json Properly",
+                                    buttons: [
+                                      DialogButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        width: size.width / 10,
+                                        child: const Text(
+                                          "OK",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        ),
+                                      )
+                                    ],
+                                  ).show();
                                 }
                               } else {
                                 Alert(
@@ -120,6 +181,7 @@ class HomePage extends StatelessWidget {
                         ElevatedButton(
                             onPressed: () {
                               jsonController.clear();
+                              titleController.clear();
                               dartController.clear();
                             },
                             child: const Text("Add New Json")),
@@ -164,10 +226,47 @@ class HomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                            onPressed: () {}, child: const Text("Copy Code")),
-                        ElevatedButton(
-                            onPressed: () {},
-                            child: const Text("Download File")),
+                            onPressed: () async {
+                              if (dartController.text.isNotEmpty) {
+                                await Clipboard.setData(
+                                    ClipboardData(text: dartController.text));
+                                Alert(
+                                  context: context,
+                                  type: AlertType.success,
+                                  title: "Copied to Clipboard",
+                                  buttons: [
+                                    DialogButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      width: size.width / 10,
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      ),
+                                    )
+                                  ],
+                                ).show();
+                              } else {
+                                Alert(
+                                  context: context,
+                                  type: AlertType.error,
+                                  title: "Error",
+                                  desc: "No value to copy",
+                                  buttons: [
+                                    DialogButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      width: size.width / 10,
+                                      child: const Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      ),
+                                    )
+                                  ],
+                                ).show();
+                              }
+                            },
+                            child: const Text("Copy Code")),
                       ],
                     )
                   ],
