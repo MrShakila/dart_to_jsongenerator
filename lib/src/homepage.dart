@@ -1,11 +1,9 @@
-import 'dart:convert';
-
+import 'package:dart_to_jsongenerator/src/alert.dart';
 import 'package:dart_to_jsongenerator/src/services.dart';
 import 'package:dart_to_jsongenerator/src/settings/settings_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'settings/settings_controller.dart';
 
@@ -18,18 +16,6 @@ class HomePage extends StatelessWidget {
     final TextEditingController jsonController = TextEditingController();
     final TextEditingController dartController = TextEditingController();
     final TextEditingController titleController = TextEditingController();
-    bool isValidJson(jsonString) {
-      var decodeSucceeded = false;
-      try {
-        var decodedJSON = json.decode(jsonString) as Map<String, dynamic>;
-        decodeSucceeded = true;
-      } on FormatException {
-        decodeSucceeded = false;
-        print('The provided string is not valid JSON');
-      }
-      print('Decoding succeeded: $decodeSucceeded');
-      return decodeSucceeded;
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +95,8 @@ class HomePage extends StatelessWidget {
                             onPressed: () {
                               if (jsonController.text.isNotEmpty &&
                                   titleController.text.isNotEmpty) {
-                                if (isValidJson(jsonController.text)) {
+                                if (JsonHelper.isValidJson(
+                                    jsonController.text)) {
                                   var res = JsonHelper.convertJson(
                                       titleController.text,
                                       jsonController.text);
@@ -117,64 +104,16 @@ class HomePage extends StatelessWidget {
                                     dartController.text = res;
                                     Logger().wtf(dartController.text);
                                   } else {
-                                    Alert(
-                                      context: context,
-                                      type: AlertType.error,
-                                      title: "Error",
-                                      desc: "Something Went Wrong",
-                                      buttons: [
-                                        DialogButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          width: size.width / 10,
-                                          child: const Text(
-                                            "OK",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20),
-                                          ),
-                                        )
-                                      ],
-                                    ).show();
+                                    Utills.showErrorAlert(
+                                        context, "Something Went Wrong", size);
                                   }
                                 } else {
-                                  Alert(
-                                    context: context,
-                                    type: AlertType.error,
-                                    title: "Error",
-                                    desc: "Please Format Your Json Properly",
-                                    buttons: [
-                                      DialogButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        width: size.width / 10,
-                                        child: const Text(
-                                          "OK",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20),
-                                        ),
-                                      )
-                                    ],
-                                  ).show();
+                                  Utills.showErrorAlert(context,
+                                      "Please Format Your Json Properly", size);
                                 }
                               } else {
-                                Alert(
-                                  context: context,
-                                  type: AlertType.error,
-                                  title: "Error",
-                                  desc: "please Fill All the Feild",
-                                  buttons: [
-                                    DialogButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      width: size.width / 10,
-                                      child: const Text(
-                                        "OK",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      ),
-                                    )
-                                  ],
-                                ).show();
+                                Utills.showErrorAlert(
+                                    context, "please Fill All the Feild", size);
                               }
                             },
                             child: const Text("Convert To Json")),
@@ -230,40 +169,11 @@ class HomePage extends StatelessWidget {
                               if (dartController.text.isNotEmpty) {
                                 await Clipboard.setData(
                                     ClipboardData(text: dartController.text));
-                                Alert(
-                                  context: context,
-                                  type: AlertType.success,
-                                  title: "Copied to Clipboard",
-                                  buttons: [
-                                    DialogButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      width: size.width / 10,
-                                      child: const Text(
-                                        "OK",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      ),
-                                    )
-                                  ],
-                                ).show();
+                                Utills.showSuccessAlert(
+                                    context, "Copied to Clipboard", size);
                               } else {
-                                Alert(
-                                  context: context,
-                                  type: AlertType.error,
-                                  title: "Error",
-                                  desc: "No value to copy",
-                                  buttons: [
-                                    DialogButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      width: size.width / 10,
-                                      child: const Text(
-                                        "OK",
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      ),
-                                    )
-                                  ],
-                                ).show();
+                                Utills.showErrorAlert(
+                                    context, "No value to copy", size);
                               }
                             },
                             child: const Text("Copy Code")),
