@@ -1,0 +1,6 @@
+{
+  "appTitle": "dart_to_jsongenerator",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
